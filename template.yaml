@@ -3,28 +3,50 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   Ordersapi
 
+Globals:
+  Function:
+    Runtime: python3.8
+    Timeout: 10
+    Environment:
+      Variables:
+        ORDER_TABLE: !Ref OrdersTable
+
 Resources:
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
   CreateOrderFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: orders_api/
       Handler: create.lambda_handler
-      Runtime: python3.8
       Events:
         CreateOrders:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api 
           Properties:
             Path: /orders
-            Method: POST  
+            Method: POST
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrdersTable
   ReadOrderFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: orders_api/
       Handler: read.lambda_handler
-      Runtime: python3.8
       Events:
         ReadOrders:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api 
           Properties:
             Path: /orders/{id}
             Method: GET
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrdersTable
