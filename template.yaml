@@ -50,3 +50,11 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref OrdersTable
+
+Outputs:
+  CreateOrderAPI:
+    Description: "API Gateway endpoint url for creating orders"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/orders"
+  CreateOrderFunction:
+    Description: "Create Order function ARN"
+    Value: !GetAtt CreateOrderFunctionRole.Arn
